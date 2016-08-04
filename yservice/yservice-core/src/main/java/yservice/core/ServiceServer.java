@@ -9,6 +9,8 @@ import static spark.Spark.post;
 import static spark.Spark.put;
 import static spark.Spark.trace;
 
+import java.io.ByteArrayOutputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +19,11 @@ import spark.Route;
 import spark.Spark;
 import yservice.core.transformer.Transformer;
 
-public class ServiceMain {
+public class ServiceServer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ServiceMain.class);
+	private static final Logger logger = LoggerFactory.getLogger(ServiceServer.class);
 	
-	public static void main(String[] args) {
-		Service service = new TestService();
-		
+	public static void init(Service service) {
 		Route route = (req, res) -> {
 			return service.run(req, res);
 		};
@@ -40,7 +40,7 @@ public class ServiceMain {
 			e.printStackTrace();
 		}
 		
-		String url = service.getUrl();
+		String url = service.getUri();
 		if (url == null || url.trim().isEmpty()) {
 			throw new IllegalArgumentException("URL cannot be null or empty");
 		}
@@ -96,19 +96,58 @@ public class ServiceMain {
 			}
 		}
 		
+		ServiceDiscovery discovery = ServiceDiscovery.connect("http://localhost:8080/yservice");
+		
 		get("/", (req, res) -> {
 			return "OK";
 		});
 		
 		get("/service/info", (req, res) -> {
 			Runtime runtime = Runtime.getRuntime();
-			return new ServiceInfo(service.getName(), service.getVersion(), service.getUrl(), runtime.totalMemory(), runtime.freeMemory());
+			return new ServiceInfo(service.getName(), service.getVersion(), service.getUri(), runtime.totalMemory(), runtime.freeMemory());
 		}, Transformer.json());
+
+		get("/service/log", (req, res) -> {
+			return ServiceLoggerManager.getInstance().getLog();
+		});
 		
 		delete("/service/stop", (req, res) -> {
 			Spark.stop();
+			discovery.unregister(service);
 			return "OK";
 		});
+		
+		discovery.register(service);
+	}
+	
+	static class ServiceLoggerManager {
+
+		private static volatile ServiceLoggerManager instance;
+		
+		private final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		
+		private ServiceLoggerManager() {
+			
+		}
+		
+		static ServiceLoggerManager getInstance() {
+			if (instance == null) {
+				synchronized (ServiceLoggerManager.class) {
+					instance = new ServiceLoggerManager();
+					instance.init();
+				}
+			}
+			return instance;
+		}
+		
+		private void init() {
+			//OutputStreamManager.getManager("SYSTEM_OUT.false.false-1", data, factory);
+		}
+		
+		synchronized String getLog() {
+			return new String(bos.toByteArray());
+		}
+		
 	}
 	
 	public static class ServiceInfo {

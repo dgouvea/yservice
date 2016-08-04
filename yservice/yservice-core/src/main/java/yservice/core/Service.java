@@ -10,13 +10,19 @@ public interface Service {
 	
 	String getVersion();
 	
-	String getUrl();
+	String getUri();
 	
 	Method getMethod();
+	
+	String getHost();
 	
 	int getPort();
 	
 	Object run(Request req, Response res);
+	
+	default String getServiceUrl() {
+		return "http://" + getHost() + ":" + getPort();
+	}
 	
 	default ResponseTransformer getTransformer() {
 		return null;

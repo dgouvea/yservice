@@ -31,8 +31,8 @@ public class RouterServlet extends HttpServlet {
 	 * Defining {@code LoggerProcessExecutor} process executor as default. 
 	 */
 	public RouterServlet() {
-		processExecutor = new CacheProcessExecutor();
-		processExecutor.setNext(new LoggerProcessExecutor()).setNext(new DefaultProcessExecutor());
+		processExecutor = new LoggerProcessExecutor();
+		processExecutor.setNext(new DefaultProcessExecutor());
 	}
 	
 	/**
@@ -86,6 +86,7 @@ public class RouterServlet extends HttpServlet {
 		
 		// content length
 		resp.setContentLength(response.getContentLength());
+		resp.flushBuffer();
 	}
 	
 }

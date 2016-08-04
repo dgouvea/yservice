@@ -1,5 +1,8 @@
 package yservice.core;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
+
 public abstract class DefaultService implements Service {
 
 	@Override
@@ -12,4 +15,13 @@ public abstract class DefaultService implements Service {
 		return Method.GET;
 	}
 
+	@Override
+	public String getHost() {
+		try {
+			return Inet4Address.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
+	
 }
