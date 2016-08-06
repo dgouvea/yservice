@@ -22,7 +22,7 @@ public final class ServiceDiscovery {
 		
 		HttpResponse<String> response;
 		try {
-			response = Unirest.put(host + "/api/discovery/service/register").header("Content-Type", "application/json").header("Accept", "application/json").body(json).asString();
+			response = Unirest.put(host + "/api/discovery/services/register").header("Content-Type", "application/json").header("Accept", "application/json").body(json).asString();
 		} catch (UnirestException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
@@ -35,7 +35,7 @@ public final class ServiceDiscovery {
 		
 		HttpResponse<String> response;
 		try {
-			response = Unirest.put(host + "/api/discovery/service/unregister").header("Content-Type", "application/json").header("Accept", "application/json").body(json).asString();
+			response = Unirest.put(host + "/api/discovery/services/unregister").header("Content-Type", "application/json").header("Accept", "application/json").body(json).asString();
 		} catch (UnirestException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}

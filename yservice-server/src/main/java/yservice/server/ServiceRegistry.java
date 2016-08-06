@@ -170,7 +170,7 @@ public class ServiceRegistry {
 	 * 
 	 * @author David Sobreira Gouvea
 	 */
-	public static class ServiceRegistryURI {
+	public static class ServiceRegistryURI implements Comparable<ServiceRegistryURI> {
 		
 		private final String uri;
 		private final UriTemplate template;
@@ -258,6 +258,15 @@ public class ServiceRegistry {
 		@Override
 		public String toString() {
 			return uri;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Comparable#compareTo(java.lang.Object)
+		 */
+		@Override
+		public int compareTo(ServiceRegistryURI o) {
+			return getUri().compareTo(o.getUri());
 		}
 		
 	}

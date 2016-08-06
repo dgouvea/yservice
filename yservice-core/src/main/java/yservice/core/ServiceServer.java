@@ -10,6 +10,8 @@ import static spark.Spark.put;
 import static spark.Spark.trace;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +114,19 @@ public class ServiceServer {
 		});
 		
 		delete("/service/stop", (req, res) -> {
-			Spark.stop();
 			discovery.unregister(service);
+			
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					Spark.stop();
+					
+					this.cancel();
+					timer.cancel();
+				}
+			}, 500);
+			
 			return "OK";
 		});
 		
@@ -159,7 +172,7 @@ public class ServiceServer {
 		private final long freeMemory;
 		private final long memory;
 		
-		public ServiceInfo(String name, String version, String url, long totalMemory, long freeMemory) {
+		ServiceInfo(String name, String version, String url, long totalMemory, long freeMemory) {
 			this.name = name;
 			this.version = version;
 			this.url = url;
