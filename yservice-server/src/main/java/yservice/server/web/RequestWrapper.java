@@ -294,8 +294,10 @@ public class RequestWrapper {
 			// cookies
 			CookieAdapter cookieAdapter = new CookieAdapter();
 			Cookie[] cookies = req.getCookies();
-			for (Cookie cookie : cookies) {
-				cookie(cookieAdapter.adapt(cookie));
+			if (cookies != null) {
+				for (Cookie cookie : cookies) {
+					cookie(cookieAdapter.adapt(cookie));
+				}
 			}
 			
 			return this;
