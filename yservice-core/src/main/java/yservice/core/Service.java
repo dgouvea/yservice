@@ -27,5 +27,17 @@ public interface Service {
 	default ResponseTransformer getTransformer() {
 		return null;
 	}
+
+	default int getThreads() {
+		return 0;
+	}
+
+	default boolean isGzip() {
+		return true;
+	}
+
+	default String getContentType() {
+		return null;
+	}
 	
 }

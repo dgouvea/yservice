@@ -4,7 +4,7 @@ public class GoodByeServiceMain extends ServiceServer {
 
 	public static void main(String[] args) {
 		GoodByeService testService = new GoodByeService();
-		ServiceServer.init(testService);
+		ServiceServer.init("http://localhost:8080/yservice", testService);
 	}
 	
 }

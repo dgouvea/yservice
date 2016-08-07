@@ -69,6 +69,9 @@ public class ServiceRegistryRequest {
 	 * @param uri the uri to set
 	 */
 	public void setUri(String uri) {
+		if (uri.contains(":")) {
+			uri = uri.replaceAll("\\:(\\w+)", "{$1}");
+		}
 		this.uri = uri;
 	}
 

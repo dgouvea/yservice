@@ -1,10 +1,15 @@
 package yservice.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import spark.Request;
 import spark.Response;
 
 public class HelloWorldService extends DefaultService {
 
+	private static Logger logger = LoggerFactory.getLogger(HelloWorldService.class);
+	
 	@Override
 	public String getName() {
 		return "HelloWorld";
@@ -22,6 +27,7 @@ public class HelloWorldService extends DefaultService {
 	
 	@Override
 	public String run(Request req, Response res) {
+		logger.warn("requesting service...");
 		return "Hello World";
 	}
 
