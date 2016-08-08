@@ -4,9 +4,8 @@ import com.mashape.unirest.http.HttpResponse;
 
 import spark.Request;
 import spark.Response;
+import yservice.core.GatewayApi;
 import yservice.core.Method;
-import yservice.core.ServiceDiscovery;
-import yservice.service.DefaultService;
 
 public class GoodByeService extends DefaultService {
 
@@ -27,8 +26,8 @@ public class GoodByeService extends DefaultService {
 	
 	@Override
 	public String run(Request req, Response res) {
-		ServiceDiscovery discovery = ServiceDiscovery.connect("http://localhost:8080/yservice");
-		HttpResponse<String> response = discovery.route(Method.GET, "/hello");
+		GatewayApi gatewayApi = GatewayApi.connect("http://localhost:8080/yservice");
+		HttpResponse<String> response = gatewayApi.route(Method.GET, "/hello");
 		return response.getBody() + " / Good Bye";
 	}
 

@@ -31,7 +31,7 @@ public class RouterServlet extends HttpServlet {
 	 */
 	public RouterServlet() {
 		processExecutor = new LoggerProcessExecutor();
-		processExecutor.setNext(new DefaultProcessExecutor());
+		processExecutor.setNext(new DefaultProcessExecutor(null)); //TODO: fix it
 	}
 	
 	/**

@@ -1,11 +1,8 @@
 package yservice.core;
 import com.google.gson.Gson;
-import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.HttpRequest;
-import com.mashape.unirest.request.HttpRequestWithBody;
 
 public final class ServiceDiscovery {
 
@@ -15,6 +12,7 @@ public final class ServiceDiscovery {
 
 	private static final String API_DISCOVERY_SERVICES_REGISTER = "/api/discovery/services/register";
 	private static final String API_DISCOVERY_SERVICES_UNREGISTER = "/api/discovery/services/unregister";
+	private static final String API_DISCOVERY_SERVICES_SERVICE = "/api/discovery/services/service";
 	
 	private final String host;
 
@@ -24,35 +22,6 @@ public final class ServiceDiscovery {
 	
 	public static ServiceDiscovery connect(String host) {
 		return new ServiceDiscovery(host);
-	}
-	
-	public HttpResponse<String> route(Method method, String uri) {
-		return route(method, uri, null);
-	}
-
-	public HttpResponse<String> route(Method method, String uri, Object object) {
-		Gson gson = new Gson();
-		return route(method, uri, gson.toJson(object));
-	}
-	
-	public HttpResponse<String> route(Method method, String uri, String body) {
-		try {
-			HttpRequest request;
-			HttpMethod httpMethod = HttpMethod.valueOf(method.name());
-			
-			uri = "/route" + uri;
-			
-			if (body == null) {
-				request = new HttpRequest(httpMethod, host + uri);
-			} else {
-				request = new HttpRequestWithBody(httpMethod, host + uri);
-				((HttpRequestWithBody) request).body(body);
-			}
-			request.header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON);
-			return request.asString();
-		} catch (UnirestException e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
 	}
 	
 	public int register(ServiceRegistryDescriptor service) {
@@ -79,6 +48,16 @@ public final class ServiceDiscovery {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 		return response.getStatus();
+	}
+	
+	public ServiceRegistryDescriptor service(String uri) {
+		HttpResponse<ServiceRegistryDescriptor> response;
+		try {
+			response = Unirest.get(host + API_DISCOVERY_SERVICES_SERVICE).queryString("uri", uri).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).asObject(ServiceRegistryDescriptor.class);
+		} catch (UnirestException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+		return response.getBody();
 	}
 	
 	static class ServiceRegistry {

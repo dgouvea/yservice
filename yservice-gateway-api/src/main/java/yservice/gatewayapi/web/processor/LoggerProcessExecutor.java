@@ -37,7 +37,7 @@ public class LoggerProcessExecutor extends AbstractProcessExecutor {
 	 */
 	public LoggerProcessExecutor(Level level) {
 		this.level = level;
-		setNext(new DefaultProcessExecutor());
+		setNext(new DefaultProcessExecutor(null)); // TODO: fix it
 	}
 
 	/**

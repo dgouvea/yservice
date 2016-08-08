@@ -28,7 +28,7 @@ public class CacheProcessExecutor extends AbstractProcessExecutor {
 	 * @see DefaultProcessExecutor
 	 */
 	public CacheProcessExecutor() {
-		setNext(new DefaultProcessExecutor());
+		setNext(new DefaultProcessExecutor(null)); //TODO: fix it
 	}
 	
 	/**

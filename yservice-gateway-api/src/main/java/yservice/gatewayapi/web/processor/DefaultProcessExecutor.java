@@ -14,6 +14,8 @@ import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import yservice.core.ServiceDiscovery;
+import yservice.core.ServiceRegistryDescriptor;
 import yservice.gatewayapi.web.RequestWrapper;
 import yservice.gatewayapi.web.ResponseWrapper;
 
@@ -23,6 +25,12 @@ import yservice.gatewayapi.web.ResponseWrapper;
  * @author David Sobreira Gouvea
  */
 public class DefaultProcessExecutor extends AbstractProcessExecutor {
+
+	private final ServiceDiscovery discovery;
+	
+	public DefaultProcessExecutor(ServiceDiscovery discovery) {
+		this.discovery = discovery;
+	}
 
 	/**
 	 * It throws an IllegalArgumentException, 
@@ -51,12 +59,11 @@ public class DefaultProcessExecutor extends AbstractProcessExecutor {
 	 */
 	@Override
 	protected ResponseWrapper execute(RequestWrapper req, ProcessExecutorChain chain) throws IOException {
-		// TODO: get service 
-		// ServiceRegistry serviceRegistry = balancerStrategy.next(req.getUri());
+		ServiceRegistryDescriptor descriptor = discovery.service(req.getUri());
 		
 		// rest client
 		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target("").path(req.getUri()); //TODO: fix it
+		WebTarget target = client.target(descriptor.getDomain()).path(descriptor.getUri());
 		
 		// query parameters (cannot use forEach because queryParam return a new instance of target)
 		for (Entry<String, String> entry : req.getParameters().entrySet()) {
