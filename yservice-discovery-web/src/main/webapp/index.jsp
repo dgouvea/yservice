@@ -1,8 +1,8 @@
 <html>
 	<head>
-		<title>yService</title>
+		<title>yService discovery</title>
 	</head>
 	<body>
-		<h2>yService is running...</h2>
+		<h2>yService discovery is running...</h2>
 	</body>
 </html>
