@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import spark.ResponseTransformer;
 import spark.Route;
 import spark.Spark;
+import yservice.core.ServiceDiscovery;
 import yservice.service.transformer.Transformer;
 
 public class ServiceServer {
@@ -85,7 +86,7 @@ public class ServiceServer {
 		ServiceDiscovery discovery = ServiceDiscovery.connect(host);
 		serviceRoute(service, uri);
 		serviceBasicRoute(service, discovery);
-		discovery.register(service);
+		discovery.register(service.getDescriptor());
 	}
 
 	private static void serviceBasicRoute(Service service, ServiceDiscovery discovery) {
@@ -104,7 +105,7 @@ public class ServiceServer {
 		});
 
 		delete("/service/stop", (req, res) -> {
-			discovery.unregister(service);
+			discovery.unregister(service.getDescriptor());
 
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {

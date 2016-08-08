@@ -4,24 +4,26 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import yservice.core.ServiceRegistryDescriptor;
+
 @XmlRootElement
 public class ServiceRegistryResponse {
 
-	private List<ServiceRegistryRequest> services;
+	private List<ServiceRegistryDescriptor> services;
 
 	public ServiceRegistryResponse() {
 
 	}
 
-	public ServiceRegistryResponse(List<ServiceRegistryRequest> services) {
+	public ServiceRegistryResponse(List<ServiceRegistryDescriptor> services) {
 		this.services = services;
 	}
 
-	public List<ServiceRegistryRequest> getServices() {
+	public List<ServiceRegistryDescriptor> getServices() {
 		return services;
 	}
 
-	public void setServices(List<ServiceRegistryRequest> services) {
+	public void setServices(List<ServiceRegistryDescriptor> services) {
 		this.services = services;
 	}
 	

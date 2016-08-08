@@ -1,4 +1,4 @@
-package yservice.service;
+package yservice.core;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.http.HttpResponse;
@@ -6,8 +6,6 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequest;
 import com.mashape.unirest.request.HttpRequestWithBody;
-
-import yservice.core.Method;
 
 public final class ServiceDiscovery {
 
@@ -57,9 +55,9 @@ public final class ServiceDiscovery {
 		}
 	}
 	
-	public int register(Service service) {
+	public int register(ServiceRegistryDescriptor service) {
 		Gson gson = new Gson();
-		String json = gson.toJson(new ServiceRegistry(service.getServiceUrl(), service.getMethod().toString(), service.getUri()));
+		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getMethod(), service.getUri()));
 		
 		HttpResponse<String> response;
 		try {
@@ -70,9 +68,9 @@ public final class ServiceDiscovery {
 		return response.getStatus();
 	}
 
-	public int unregister(Service service) {
+	public int unregister(ServiceRegistryDescriptor service) {
 		Gson gson = new Gson();
-		String json = gson.toJson(new ServiceRegistry(service.getServiceUrl(), service.getMethod().toString(), service.getUri()));
+		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getMethod().toString(), service.getUri()));
 		
 		HttpResponse<String> response;
 		try {

@@ -2,7 +2,7 @@
  * Copyright (c) 2016 Definity Team <developer@definitysolutions.com>
  * MIT Licensed
  */
-package yservice.discovery.web;
+package yservice.core;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author David Sobreira Gouvea
  */
 @XmlRootElement
-public class ServiceRegistryRequest {
+public class ServiceRegistryDescriptor {
 
 	private String domain;
 	private String method;

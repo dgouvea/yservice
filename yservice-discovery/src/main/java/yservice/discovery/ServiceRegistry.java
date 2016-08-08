@@ -22,7 +22,7 @@ import yservice.core.Method;
  * @see ServiceRegistryBuilder
  * @see ServiceRegistryURI
  */
-public class ServiceRegistry {
+public final class ServiceRegistry {
 	
 	private final String domain;
 	private final Method method;
@@ -170,7 +170,7 @@ public class ServiceRegistry {
 	 * 
 	 * @author David Sobreira Gouvea
 	 */
-	public static class ServiceRegistryURI implements Comparable<ServiceRegistryURI> {
+	public static final class ServiceRegistryURI implements Comparable<ServiceRegistryURI> {
 		
 		private final String uri;
 		private final UriTemplate template;

@@ -5,8 +5,8 @@ import com.mashape.unirest.http.HttpResponse;
 import spark.Request;
 import spark.Response;
 import yservice.core.Method;
+import yservice.core.ServiceDiscovery;
 import yservice.service.DefaultService;
-import yservice.service.ServiceDiscovery;
 
 public class GoodByeService extends DefaultService {
 

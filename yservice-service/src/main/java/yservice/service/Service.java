@@ -4,6 +4,7 @@ import spark.Request;
 import spark.Response;
 import spark.ResponseTransformer;
 import yservice.core.Method;
+import yservice.core.ServiceRegistryDescriptor;
 
 public interface Service {
 
@@ -39,6 +40,14 @@ public interface Service {
 
 	default String getContentType() {
 		return null;
+	}
+
+	default ServiceRegistryDescriptor getDescriptor() {
+		ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
+		descriptor.setDomain(getServiceUrl());
+		descriptor.setMethod(getMethod().name());
+		descriptor.setUri(getUri());
+		return descriptor;
 	}
 	
 }

@@ -19,11 +19,12 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import yservice.core.ServiceRegistryDescriptor;
 import yservice.discovery.ServiceManager;
 import yservice.discovery.ServiceRegistry;
 import yservice.discovery.ServiceRegistry.ServiceRegistryURI;
+import yservice.discovery.balancer.BalanceStrategyManager;
 import yservice.discovery.balancer.BalancerStrategy;
-import yservice.discovery.balancer.RoundRobinBalancerStrategy;
 
 /**
  * Web Service REST responsible for register/unregister the web services routes.
@@ -35,12 +36,6 @@ import yservice.discovery.balancer.RoundRobinBalancerStrategy;
 @Produces(MediaType.APPLICATION_JSON)
 public class DiscoveryService {
 
-	private BalancerStrategy balancerStrategy;
-	
-	public DiscoveryService() {
-		balancerStrategy = new RoundRobinBalancerStrategy();
-	}
-	
 	/**
 	 * Return all registered services.
 	 * 
@@ -58,11 +53,11 @@ public class DiscoveryService {
 		} else {
 			Set<ServiceRegistry> services = serviceManager.get(uri);
 			response = new ServiceRegistryResponse(services.stream().map(service -> {
-				ServiceRegistryRequest req = new ServiceRegistryRequest();
-				req.setDomain(service.getDomain());
-				req.setMethod(service.getMethod().name());
-				req.setUri(service.getUri().getUri());
-				return req;
+				ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
+				descriptor.setDomain(service.getDomain());
+				descriptor.setMethod(service.getMethod().name());
+				descriptor.setUri(service.getUri().getUri());
+				return descriptor;
 			}).collect(Collectors.toList()));
 		}
 		
@@ -136,39 +131,39 @@ public class DiscoveryService {
 	/**
 	 * Register a new web service route.
 	 * 
-	 * @param request the web service route registry
+	 * @param descriptor the web service route registry
 	 * @return the response including the service route registry.
 	 */
 	@PUT
 	@Path("/register")
-	public Response register(ServiceRegistryRequest request) {
+	public Response register(ServiceRegistryDescriptor descriptor) {
 		ServiceRegistry serviceRegistry = ServiceRegistry.builder()
-				.domain(request.getDomain())
-				.method(request.getMethod())
-				.uri(request.getUri())
+				.domain(descriptor.getDomain())
+				.method(descriptor.getMethod())
+				.uri(descriptor.getUri())
 				.build();
 		
 		ServiceManager.getInstance().register(serviceRegistry);
-		return Response.ok(request, MediaType.APPLICATION_JSON).build();
+		return Response.ok(descriptor, MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
 	 * Unregister an existent web service route.
 	 * 
-	 * @param request the web service route registry
+	 * @param descriptor the web service route registry
 	 * @return the response including the service route registry.
 	 */
 	@PUT
 	@Path("/unregister")
-	public Response unregister(ServiceRegistryRequest request) {
+	public Response unregister(ServiceRegistryDescriptor descriptor) {
 		ServiceRegistry serviceRegistry = ServiceRegistry.builder()
-				.domain(request.getDomain())
-				.method(request.getMethod())
-				.uri(request.getUri())
+				.domain(descriptor.getDomain())
+				.method(descriptor.getMethod())
+				.uri(descriptor.getUri())
 				.build();
 		
 		ServiceManager.getInstance().unregister(serviceRegistry);
-		return Response.ok(request, MediaType.APPLICATION_JSON).build();
+		return Response.ok(descriptor, MediaType.APPLICATION_JSON).build();
 	}
 
 	/**
@@ -180,14 +175,15 @@ public class DiscoveryService {
 	@GET
 	@Path("/service")
 	public Response get(@QueryParam("uri") String uri) {
+		BalancerStrategy balancerStrategy = BalanceStrategyManager.getInstance().getBalancerStrategy();
 		ServiceRegistry serviceRegistry = balancerStrategy.next(uri);
 		
-		ServiceRegistryRequest serviceRegistryRequest = new ServiceRegistryRequest();
-		serviceRegistryRequest.setDomain(serviceRegistry.getDomain());
-		serviceRegistryRequest.setMethod(serviceRegistry.getMethod().name());
-		serviceRegistryRequest.setUri(serviceRegistry.getUri().getUri());
+		ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
+		descriptor.setDomain(serviceRegistry.getDomain());
+		descriptor.setMethod(serviceRegistry.getMethod().name());
+		descriptor.setUri(serviceRegistry.getUri().getUri());
 		
-		return Response.ok(serviceRegistryRequest).build();
+		return Response.ok(descriptor).build();
 	}
 	
 }
