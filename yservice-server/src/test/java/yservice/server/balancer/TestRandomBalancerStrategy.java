@@ -2,6 +2,8 @@ package yservice.server.balancer;
 
 import yservice.server.ServiceManager;
 import yservice.server.ServiceRegistry;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +27,12 @@ public class TestRandomBalancerStrategy {
 		serviceManager.register(service4);
 	}
 
+	@After
+	@SuppressWarnings("deprecation")
+	public void clean() {
+		ServiceManager.getInstance().unregisterAll();
+	}
+	
 	@Test
 	public void testRound() {
 		RandomBalancerStrategy strategy = new RandomBalancerStrategy();

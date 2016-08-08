@@ -152,7 +152,7 @@ public final class ServiceManager {
 	}
 	
 	@Deprecated
-	void unregisterAll() {
+	public void unregisterAll() {
 		services.clear();
 	}
 	

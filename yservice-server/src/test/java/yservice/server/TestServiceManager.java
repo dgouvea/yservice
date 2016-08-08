@@ -9,8 +9,8 @@ import yservice.server.ServiceRegistry.ServiceRegistryURI;
 
 public class TestServiceManager {
 
-	@SuppressWarnings("deprecation")
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testRegister() {
 		ServiceRegistry service1a = ServiceRegistry.builder().domain("http://localhost:8080").method("GET").uri("/people/{name}").build();
 		ServiceRegistry service1b = ServiceRegistry.builder().domain("http://localhost:8081").method("GET").uri("/people/{name}").build();
@@ -37,8 +37,8 @@ public class TestServiceManager {
 		serviceManager.unregisterAll();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testWeakObservers() {
 		ServiceRegistry service1 = ServiceRegistry.builder().domain("http://localhost:8082").method("GET").uri("/people/{name}").build();
 		

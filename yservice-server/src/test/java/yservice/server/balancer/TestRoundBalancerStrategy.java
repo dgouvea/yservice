@@ -1,10 +1,15 @@
 package yservice.server.balancer;
 
-import yservice.server.ServiceManager;
-import yservice.server.ServiceRegistry;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import yservice.server.ServiceManager;
+import yservice.server.ServiceRegistry;
 
 public class TestRoundBalancerStrategy {
 
@@ -21,26 +26,43 @@ public class TestRoundBalancerStrategy {
 		ServiceRegistry service3 = ServiceRegistry.builder().domain("http://localhost:8083").method("GET").uri("/people/{name}").build();
 		serviceManager.register(service3);
 	}
+	
+	@After
+	@SuppressWarnings("deprecation")
+	public void clean() {
+		ServiceManager.getInstance().unregisterAll();
+	}
 
 	@Test
 	public void testRound() {
 		RoundRobinBalancerStrategy strategy = new RoundRobinBalancerStrategy();
 		ServiceRegistry service = null;
 		
+		List<String> domains = new ArrayList<>();
+		
 		service = strategy.next("/people/david");
-		Assert.assertTrue(service.getDomain().contains("8083"));
+		Assert.assertFalse(domains.contains(service.getDomain()));
+		System.out.println(service.getDomain());
+		domains.add(service.getDomain());
 
 		service = strategy.next("/people/sobreira");
-		Assert.assertTrue(service.getDomain().contains("8082"));
+		Assert.assertFalse(domains.contains(service.getDomain()));
+		System.out.println(service.getDomain());
+		domains.add(service.getDomain());
 
 		service = strategy.next("/people/gouvea");
-		Assert.assertTrue(service.getDomain().contains("8081"));
+		Assert.assertFalse(domains.contains(service.getDomain()));
+		System.out.println(service.getDomain());
+		domains.add(service.getDomain());
 
 		service = strategy.next("/people/john");
-		Assert.assertTrue(service.getDomain().contains("8083"));
+		System.out.println(service.getDomain());
+		Assert.assertTrue(domains.contains(service.getDomain()));
+		domains.add(service.getDomain());
 
 		service = strategy.next("/people/doe");
-		Assert.assertTrue(service.getDomain().contains("8082"));
+		System.out.println(service.getDomain());
+		Assert.assertTrue(domains.contains(service.getDomain()));
 	}
 	
 }
