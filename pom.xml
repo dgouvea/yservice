@@ -55,6 +55,10 @@
 
 	<modules>
 		<module>yservice-core</module>
-		<module>yservice-server</module>
+		<module>yservice-service</module>
+		<module>yservice-discovery</module>
+		<module>yservice-discovery-web</module>
+		<module>yservice-gateway-api</module>
+		<module>yservice-gateway-api-web</module>
 	</modules>
 </project>
