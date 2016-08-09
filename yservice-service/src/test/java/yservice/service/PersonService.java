@@ -2,14 +2,8 @@ package yservice.service;
 
 import spark.Request;
 import spark.Response;
-import yservice.service.JsonService;
 
-public class PersonService extends JsonService {
-
-	@Override
-	public String getName() {
-		return "Person";
-	}
+public class PersonService implements JsonService {
 
 	@Override
 	public String getUri() {
@@ -17,12 +11,7 @@ public class PersonService extends JsonService {
 	}
 
 	@Override
-	public int getPort() {
-		return 4004;
-	}
-
-	@Override
-	public Object run(Request req, Response res) {
+	public Object execute(Request req, Response res) {
 		return new Person(req.params("name"), Integer.parseInt(req.queryParams("age")));
 	}
 

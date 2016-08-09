@@ -5,29 +5,18 @@ import org.slf4j.LoggerFactory;
 
 import spark.Request;
 import spark.Response;
-import yservice.service.DefaultService;
 
-public class HelloWorldService extends DefaultService {
+public class HelloWorldService implements DefaultService {
 
 	private static Logger logger = LoggerFactory.getLogger(HelloWorldService.class);
 	
-	@Override
-	public String getName() {
-		return "HelloWorld";
-	}
-
 	@Override
 	public String getUri() {
 		return "/hello";
 	}
 
 	@Override
-	public int getPort() {
-		return 4000;
-	}
-	
-	@Override
-	public String run(Request req, Response res) {
+	public String execute(Request req, Response res) {
 		logger.warn("requesting service...");
 		return "Hello World";
 	}

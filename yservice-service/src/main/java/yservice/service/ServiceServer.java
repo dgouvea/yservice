@@ -13,6 +13,7 @@ import static spark.Spark.secure;
 import static spark.Spark.trace;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,26 +33,25 @@ import spark.ResponseTransformer;
 import spark.Route;
 import spark.Spark;
 import yservice.core.ServiceDiscovery;
+import yservice.core.ServiceRegistryDescriptor;
 import yservice.service.transformer.Transformer;
 
 public class ServiceServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServiceServer.class);
 
-	public static void init(String host, Service service, String... args) {
+	public static void init(ServiceDiscovery discovery, ServiceProvider serviceProvider, String... args) {
 		ServiceLoggerManager.getInstance();
 
 		ServiceParameter param = new ServiceParameter();
-		param.setIp(service.getHost());
-		param.setPort(service.getPort());
-		param.setThreads(service.getThreads());
-		param.setGzip(service.isGzip());
-		param.setContentType(service.getContentType());
+		param.setIp(serviceProvider.getHost());
+		param.setPort(serviceProvider.getPort());
+		param.setThreads(serviceProvider.getThreads());
 		param.parse(args);
 
 		ipAddress(param.getIp());
 		port(param.getPort());
-		logger.info("Service " + service.getName() + " starting at " + param.getPort());
+		logger.info("Service " + serviceProvider.getName() + " starting at " + param.getPort());
 		
 		Spark.exception(Exception.class, (e, req, res) -> {
 			logger.error(e.getMessage(), e);
@@ -65,38 +65,43 @@ public class ServiceServer {
 			Spark.threadPool(param.getThreads());
 		}
 		
-		String uri = service.getUri();
-		if (uri == null || uri.trim().isEmpty()) {
-			throw new IllegalArgumentException("URI cannot be null or empty");
-		}
-
-		if (!uri.startsWith("/")) {
-			uri = "/" + uri;
-		}
-
-		after((req, res) -> {
-			if (param.isGzip()) {
-				res.header("Content-Encoding", "gzip");
+		List<Service> services = serviceProvider.getServices();
+		services.forEach(service -> {
+			String uri = service.getUri();
+			if (uri == null || uri.trim().isEmpty()) {
+				throw new IllegalArgumentException("URI cannot be null or empty");
 			}
-			if (param.getContentType() != null) {
-				res.header("Content-Type", param.getContentType());
+			
+			if (!uri.startsWith("/")) {
+				uri = "/" + uri;
 			}
+			
+			after((req, res) -> {
+				if (param.isGzip()) {
+					res.header("Content-Encoding", "gzip");
+				}
+				if (param.getContentType() != null) {
+					res.header("Content-Type", param.getContentType());
+				}
+			});
+			
+			serviceRoute(service, uri);
+			serviceBasicRoute(serviceProvider, service, discovery);
+			
+			ServiceRegistryDescriptor descriptor = service.getDescriptor();
+			descriptor.setDomain(serviceProvider.getDomain());
+			discovery.register(descriptor);
 		});
-		
-		ServiceDiscovery discovery = ServiceDiscovery.connect(host);
-		serviceRoute(service, uri);
-		serviceBasicRoute(service, discovery);
-		discovery.register(service.getDescriptor());
 	}
 
-	private static void serviceBasicRoute(Service service, ServiceDiscovery discovery) {
+	private static void serviceBasicRoute(ServiceProvider serviceProvider, Service service, ServiceDiscovery discovery) {
 		get("/", (req, res) -> {
 			return "OK";
 		});
 
 		get("/service/info", (req, res) -> {
 			Runtime runtime = Runtime.getRuntime();
-			return new ServiceInfo(service.getName(), service.getVersion(), service.getUri(), runtime.totalMemory(),
+			return new ServiceInfo(serviceProvider.getName(), serviceProvider.getVersion(), service.getUri(), runtime.totalMemory(),
 					runtime.freeMemory());
 		} , Transformer.json());
 
@@ -124,7 +129,7 @@ public class ServiceServer {
 
 	private static void serviceRoute(Service service, String uri) {
 		Route route = (req, res) -> {
-			return service.run(req, res);
+			return service.execute(req, res);
 		};
 
 		ResponseTransformer transformer = service.getTransformer();
