@@ -95,7 +95,7 @@ public class ServiceServer {
 	}
 
 	private static void serviceBasicRoute(ServiceProvider serviceProvider, Service service, ServiceDiscovery discovery) {
-		get("/", (req, res) -> {
+		head("/service/health", (req, res) -> {
 			return "OK";
 		});
 
@@ -110,7 +110,9 @@ public class ServiceServer {
 		});
 
 		delete("/service/stop", (req, res) -> {
-			discovery.unregister(service.getDescriptor());
+			ServiceRegistryDescriptor descriptor = service.getDescriptor();
+			descriptor.setDomain(serviceProvider.getDomain());
+			discovery.unregister(descriptor);
 
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
