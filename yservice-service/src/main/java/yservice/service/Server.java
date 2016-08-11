@@ -69,8 +69,8 @@ public final class Server {
 		}
 		
 		List<ServiceCommand> commands = serviceProvider.getCommands();
-		commands.forEach(service -> {
-			String uri = service.getUri();
+		commands.forEach(command -> {
+			String uri = command.getUri();
 			if (uri == null || uri.trim().isEmpty()) {
 				throw new IllegalArgumentException("URI cannot be null or empty");
 			}
@@ -80,31 +80,32 @@ public final class Server {
 			}
 			
 			after((req, res) -> {
-				if (param.isGzip()) {
+				if (command.isGzip()) {
 					res.header("Content-Encoding", "gzip");
 				}
-				if (param.getContentType() != null) {
-					res.header("Content-Type", param.getContentType());
+				if (command.getContentType() != null) {
+					res.header("Content-Type", command.getContentType());
 				}
 			});
 			
-			serviceRoute(service, uri);
-			serviceBasicRoute(serviceProvider, service, serviceProvider.getServiceDiscovery());
+			serviceRoute(command, uri);
+			serviceBasicRoute(serviceProvider, command, serviceProvider.getServiceDiscovery());
 			
 			if (serviceProvider.getServiceDiscovery() != null) {
+				logger.info("Registering service " + serviceProvider.getName() + " to service discovery " + serviceProvider.getServiceDiscovery().getHost());
 				serviceProvider.getServiceDiscovery().register(serviceProvider.getDescriptor());
 			}
 		});
 	}
 
-	private static void serviceBasicRoute(ServiceProvider serviceProvider, ServiceCommand service, ServiceDiscovery serviceDiscovery) {
+	private static void serviceBasicRoute(ServiceProvider serviceProvider, ServiceCommand command, ServiceDiscovery serviceDiscovery) {
 		head("/service/health", (req, res) -> {
 			return "OK";
 		});
 
 		get("/service/info", (req, res) -> {
 			Runtime runtime = Runtime.getRuntime();
-			return new ServiceInfo(serviceProvider.getName(), serviceProvider.getVersion(), service.getUri(), runtime.totalMemory(),
+			return new ServiceInfo(serviceProvider.getName(), serviceProvider.getVersion(), command.getUri(), runtime.totalMemory(),
 					runtime.freeMemory());
 		} , Transformer.json());
 
@@ -114,6 +115,7 @@ public final class Server {
 
 		delete("/service/stop", (req, res) -> {
 			if (serviceDiscovery != null) {
+				logger.info("Unregistering service " + serviceProvider.getName() + " from service discovery " + serviceProvider.getServiceDiscovery().getHost());
 				serviceDiscovery.unregister(serviceProvider.getDescriptor());
 			}
 
@@ -132,50 +134,50 @@ public final class Server {
 		});
 	}
 
-	private static void serviceRoute(ServiceCommand service, String uri) {
+	private static void serviceRoute(ServiceCommand command, String uri) {
 		Route route = (req, res) -> {
-			return service.execute(req, res);
+			return command.execute(req, res);
 		};
 
-		ResponseTransformer transformer = service.getTransformer();
+		ResponseTransformer transformer = command.getTransformer();
 		boolean isTransformable = transformer != null;
-		if (service.getMethod().isGet()) {
+		if (command.getMethod().isGet()) {
 			if (isTransformable) {
 				get(uri, route, transformer);
 			} else {
 				get(uri, route);
 			}
-		} else if (service.getMethod().isPost()) {
+		} else if (command.getMethod().isPost()) {
 			if (isTransformable) {
 				post(uri, route, transformer);
 			} else {
 				post(uri, route);
 			}
-		} else if (service.getMethod().isPut()) {
+		} else if (command.getMethod().isPut()) {
 			if (isTransformable) {
 				put(uri, route, transformer);
 			} else {
 				put(uri, route);
 			}
-		} else if (service.getMethod().isDelete()) {
+		} else if (command.getMethod().isDelete()) {
 			if (isTransformable) {
 				delete(uri, route, transformer);
 			} else {
 				delete(uri, route);
 			}
-		} else if (service.getMethod().isTrace()) {
+		} else if (command.getMethod().isTrace()) {
 			if (isTransformable) {
 				trace(uri, route, transformer);
 			} else {
 				trace(uri, route);
 			}
-		} else if (service.getMethod().isHead()) {
+		} else if (command.getMethod().isHead()) {
 			if (isTransformable) {
 				head(uri, route, transformer);
 			} else {
 				head(uri, route);
 			}
-		} else if (service.getMethod().isOptions()) {
+		} else if (command.getMethod().isOptions()) {
 			if (isTransformable) {
 				options(uri, route, transformer);
 			} else {
@@ -188,8 +190,6 @@ public final class Server {
 		private String ip;
 		private int port;
 		private int threads;
-		private boolean gzip;
-		private String contentType;
 		private String keyStoreLocation;
 		private String keyStorePassword;
 		
@@ -205,10 +205,6 @@ public final class Server {
 					setPort(Integer.parseInt(args[++i]));
 				} else if (param.equals("-threads")) {
 					setThreads(Integer.parseInt(args[++i]));
-				} else if (param.equals("-gzip")) {
-					setGzip(true);
-				} else if (param.equals("-contentType")) {
-					setContentType(args[++i]);
 				} else if (param.equals("-ssl")) {
 					setKeyStoreLocation(args[++i]);
 					setKeyStorePassword(args[++i]); // TODO: remove from args
@@ -238,22 +234,6 @@ public final class Server {
 
 		public void setThreads(int threads) {
 			this.threads = threads;
-		}
-		
-		public boolean isGzip() {
-			return gzip;
-		}
-		
-		public void setGzip(boolean gzip) {
-			this.gzip = gzip;
-		}
-
-		public String getContentType() {
-			return contentType;
-		}
-
-		public void setContentType(String contentType) {
-			this.contentType = contentType;
 		}
 
 		public String getKeyStoreLocation() {

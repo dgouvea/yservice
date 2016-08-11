@@ -24,9 +24,13 @@ public final class ServiceDiscovery {
 		return new ServiceDiscovery(host);
 	}
 	
+	public String getHost() {
+		return host;
+	}
+	
 	public int register(ServiceRegistryDescriptor service) {
 		Gson gson = new Gson();
-		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getName(), service.getVersion()));
+		String json = gson.toJson(service);
 		
 		HttpResponse<String> response;
 		try {
@@ -39,7 +43,7 @@ public final class ServiceDiscovery {
 
 	public int unregister(ServiceRegistryDescriptor service) {
 		Gson gson = new Gson();
-		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getName(), service.getVersion()));
+		String json = gson.toJson(service);
 		
 		HttpResponse<String> response;
 		try {
@@ -58,32 +62,6 @@ public final class ServiceDiscovery {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 		return response.getBody();
-	}
-	
-	static class ServiceRegistry {
-		
-		private final String domain;
-		private final String method;
-		private final String uri;
-
-		private ServiceRegistry(String domain, String method, String uri) {
-			this.domain = domain;
-			this.method = method;
-			this.uri = uri;
-		}
-		
-		public String getDomain() {
-			return domain;
-		}
-		
-		public String getMethod() {
-			return method;
-		}
-		
-		public String getUri() {
-			return uri;
-		}
-
 	}
 	
 }

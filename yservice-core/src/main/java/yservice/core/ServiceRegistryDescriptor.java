@@ -18,6 +18,16 @@ public class ServiceRegistryDescriptor {
 	private String name;
 	private String version;
 
+	public ServiceRegistryDescriptor() {
+		
+	}
+	
+	public ServiceRegistryDescriptor(String domain, String name, String version) {
+		this.domain = domain;
+		this.name = name;
+		this.version = version;
+	}
+
 	/**
 	 * Returns the domain.
 	 * 
