@@ -17,7 +17,7 @@ public class GoodByeCommand implements DefaultServiceCommand {
 	@Override
 	public String execute(Request req, Response res) {
 		GatewayApi gatewayApi = GatewayApi.connect("http://localhost:8080/yservice");
-		HttpResponse<String> response = gatewayApi.route(Method.GET, "/hello");
+		HttpResponse<String> response = gatewayApi.route("hello-world", "1.0.0").execute(Method.GET, "/hello");
 		return response.getBody() + " / Good Bye";
 	}
 

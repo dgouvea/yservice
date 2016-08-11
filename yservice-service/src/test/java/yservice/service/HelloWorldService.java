@@ -5,7 +5,7 @@ import yservice.core.ServiceDiscovery;
 public class HelloWorldService {
 
 	public static void main(String[] args) {
-		ServiceProvider serviceProvider = new DefaultServiceProvider("HelloWorld", "localhost", 4004);
+		ServiceProvider serviceProvider = new DefaultServiceProvider("hello-world", 4004);
 		serviceProvider.serviceDiscovery(ServiceDiscovery.connect("http://localhost:8080/yservice"));
 		serviceProvider.register(new HelloWorldCommand());
 		

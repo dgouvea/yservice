@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-public class HelloWorldCommand implements DefaultServiceCommand {
 
+public class HelloWorldCommand implements DefaultServiceCommand {
 	private static Logger logger = LoggerFactory.getLogger(HelloWorldCommand.class);
 	
 	@Override

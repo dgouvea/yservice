@@ -1,5 +1,7 @@
 package yservice.service;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +17,17 @@ public class DefaultServiceProvider implements ServiceProvider {
 	private ServiceDiscovery serviceDiscovery;
 	private final List<ServiceCommand> commands = new ArrayList<>();
 
+	public DefaultServiceProvider(String name, int port) {
+		this.name = name;
+		this.port = port;
+		
+		try {
+			this.host = Inet4Address.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public DefaultServiceProvider(String name, String host, int port) {
 		this.name = name;
 		this.host = host;
