@@ -35,11 +35,11 @@ import spark.Spark;
 import yservice.core.ServiceDiscovery;
 import yservice.service.transformer.Transformer;
 
-public final class ServiceServer {
+public final class Server {
 
-	private static final Logger logger = LoggerFactory.getLogger(ServiceServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
-	private ServiceServer() {
+	private Server() {
 		
 	}
 	

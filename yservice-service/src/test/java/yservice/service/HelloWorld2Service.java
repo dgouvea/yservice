@@ -9,7 +9,7 @@ public class HelloWorld2Service {
 		serviceProvider.serviceDiscovery(ServiceDiscovery.connect("http://localhost:8080/yservice"));
 		serviceProvider.register(new HelloWorld2Command());
 		
-		ServiceServer.init(serviceProvider);
+		Server.init(serviceProvider);
 	}
 	
 }

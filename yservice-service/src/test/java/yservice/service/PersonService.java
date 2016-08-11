@@ -10,7 +10,7 @@ public class PersonService {
 		serviceProvider.register(new HelloWorldCommand());
 		serviceProvider.register(new PersonCommand());
 		
-		ServiceServer.init(serviceProvider);
+		Server.init(serviceProvider);
 	}
 	
 }

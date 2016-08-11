@@ -1,7 +1,7 @@
 package yservice.service;
 
 import yservice.core.ServiceDiscovery;
-import yservice.service.ServiceServer;
+import yservice.service.Server;
 
 public class HelloService {
 
@@ -10,7 +10,7 @@ public class HelloService {
 		serviceProvider.serviceDiscovery(ServiceDiscovery.connect("http://localhost:8080/yservice"));
 		serviceProvider.register(new HelloCommand());
 		
-		ServiceServer.init(serviceProvider);
+		Server.init(serviceProvider);
 	}
 	
 }
