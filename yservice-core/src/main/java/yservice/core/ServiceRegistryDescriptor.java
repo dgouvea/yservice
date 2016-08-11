@@ -48,13 +48,10 @@ public class ServiceRegistryDescriptor {
 	/**
 	 * Sets the name.
 	 * 
-	 * @param uri the name to set
+	 * @param name the name to set
 	 */
-	public void setName(String uri) {
-		if (uri.contains(":")) {
-			uri = uri.replaceAll("\\:(\\w+)", "{$1}");
-		}
-		this.name = uri;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
@@ -75,4 +72,13 @@ public class ServiceRegistryDescriptor {
 		this.version = version;
 	}
 
+	/**
+	 * Returns the service URI.
+	 * 
+	 * @return the service URI
+	 */
+	public String getUri() {
+		return "/" + getVersion() + "/" + getName();
+	}
+	
 }

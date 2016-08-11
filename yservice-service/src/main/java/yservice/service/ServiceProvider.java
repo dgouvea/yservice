@@ -2,6 +2,7 @@ package yservice.service;
 
 import java.util.List;
 
+import yservice.core.ServiceDiscovery;
 import yservice.core.ServiceRegistryDescriptor;
 
 public interface ServiceProvider {
@@ -26,9 +27,13 @@ public interface ServiceProvider {
 		return "1.0.0";
 	}
 	
-	ServiceProvider register(Service service);
+	ServiceDiscovery getServiceDiscovery();
 	
-	List<Service> getServices();
+	ServiceProvider serviceDiscovery(ServiceDiscovery serviceDiscovery);
+	
+	ServiceProvider register(ServiceCommand service);
+	
+	List<ServiceCommand> getCommands();
 
 	ServiceRegistryDescriptor getDescriptor();
 	

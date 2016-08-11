@@ -5,7 +5,7 @@ import spark.Response;
 import spark.ResponseTransformer;
 import yservice.core.Method;
 
-public interface Service {
+public interface ServiceCommand {
 
 	String getUri();
 	

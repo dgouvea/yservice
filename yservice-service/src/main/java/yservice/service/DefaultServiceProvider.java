@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import yservice.core.ServiceDiscovery;
 import yservice.core.ServiceRegistryDescriptor;
 
 public class DefaultServiceProvider implements ServiceProvider {
@@ -11,7 +12,8 @@ public class DefaultServiceProvider implements ServiceProvider {
 	private final String name;
 	private final String host;
 	private final int port;
-	private final List<Service> services = new ArrayList<>();
+	private ServiceDiscovery serviceDiscovery;
+	private final List<ServiceCommand> commands = new ArrayList<>();
 
 	public DefaultServiceProvider(String name, String host, int port) {
 		this.name = name;
@@ -35,15 +37,26 @@ public class DefaultServiceProvider implements ServiceProvider {
 	}
 
 	@Override
-	public final List<Service> getServices() {
-		return Collections.unmodifiableList(services);
+	public final List<ServiceCommand> getCommands() {
+		return Collections.unmodifiableList(commands);
 	}
 
-	public final ServiceProvider register(Service descriptor) {
-		services.add(descriptor);
+	public final ServiceProvider register(ServiceCommand descriptor) {
+		commands.add(descriptor);
 		return this;
 	}
 
+	@Override
+	public ServiceDiscovery getServiceDiscovery() {
+		return serviceDiscovery;
+	}
+	
+	@Override
+	public ServiceProvider serviceDiscovery(ServiceDiscovery serviceDiscovery) {
+		this.serviceDiscovery = serviceDiscovery;
+		return this;
+	}
+	
 	@Override
 	public ServiceRegistryDescriptor getDescriptor() {
 		ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();

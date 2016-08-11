@@ -33,14 +33,17 @@ import spark.ResponseTransformer;
 import spark.Route;
 import spark.Spark;
 import yservice.core.ServiceDiscovery;
-import yservice.core.ServiceRegistryDescriptor;
 import yservice.service.transformer.Transformer;
 
-public class ServiceServer {
+public final class ServiceServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServiceServer.class);
 
-	public static void init(ServiceDiscovery discovery, ServiceProvider serviceProvider, String... args) {
+	private ServiceServer() {
+		
+	}
+	
+	public static void init(ServiceProvider serviceProvider, String... args) {
 		ServiceLoggerManager.getInstance();
 
 		ServiceParameter param = new ServiceParameter();
@@ -65,8 +68,8 @@ public class ServiceServer {
 			Spark.threadPool(param.getThreads());
 		}
 		
-		List<Service> services = serviceProvider.getServices();
-		services.forEach(service -> {
+		List<ServiceCommand> commands = serviceProvider.getCommands();
+		commands.forEach(service -> {
 			String uri = service.getUri();
 			if (uri == null || uri.trim().isEmpty()) {
 				throw new IllegalArgumentException("URI cannot be null or empty");
@@ -86,15 +89,15 @@ public class ServiceServer {
 			});
 			
 			serviceRoute(service, uri);
-			serviceBasicRoute(serviceProvider, service, discovery);
+			serviceBasicRoute(serviceProvider, service, serviceProvider.getServiceDiscovery());
 			
-			ServiceRegistryDescriptor descriptor = serviceProvider.getDescriptor();
-			descriptor.setDomain(serviceProvider.getDomain());
-			discovery.register(descriptor);
+			if (serviceProvider.getServiceDiscovery() != null) {
+				serviceProvider.getServiceDiscovery().register(serviceProvider.getDescriptor());
+			}
 		});
 	}
 
-	private static void serviceBasicRoute(ServiceProvider serviceProvider, Service service, ServiceDiscovery discovery) {
+	private static void serviceBasicRoute(ServiceProvider serviceProvider, ServiceCommand service, ServiceDiscovery serviceDiscovery) {
 		head("/service/health", (req, res) -> {
 			return "OK";
 		});
@@ -110,9 +113,9 @@ public class ServiceServer {
 		});
 
 		delete("/service/stop", (req, res) -> {
-			ServiceRegistryDescriptor descriptor = serviceProvider.getDescriptor();
-			descriptor.setDomain(serviceProvider.getDomain());
-			discovery.unregister(descriptor);
+			if (serviceDiscovery != null) {
+				serviceDiscovery.unregister(serviceProvider.getDescriptor());
+			}
 
 			Timer timer = new Timer();
 			timer.schedule(new TimerTask() {
@@ -129,7 +132,7 @@ public class ServiceServer {
 		});
 	}
 
-	private static void serviceRoute(Service service, String uri) {
+	private static void serviceRoute(ServiceCommand service, String uri) {
 		Route route = (req, res) -> {
 			return service.execute(req, res);
 		};

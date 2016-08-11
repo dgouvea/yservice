@@ -1,47 +1,15 @@
 package yservice.service;
 
-import spark.Request;
-import spark.Response;
+import yservice.core.ServiceDiscovery;
 
-public class PersonService implements JsonService {
+public class PersonService {
 
-	@Override
-	public String getUri() {
-		return "/person/:name";
+	public static void main(String[] args) {
+		ServiceProvider serviceProvider = new DefaultServiceProvider("Person", "localhost", 4005);
+		serviceProvider.serviceDiscovery(ServiceDiscovery.connect("http://localhost:8080/yservice"));
+		serviceProvider.register(new PersonCommand());
+		
+		ServiceServer.init(serviceProvider);
 	}
-
-	@Override
-	public Object execute(Request req, Response res) {
-		return new Person(req.params("name"), Integer.parseInt(req.queryParams("age")));
-	}
-
-	public static class Person {
-		private String name;
-		private int age;
-
-		public Person() {
-		}
-
-		public Person(String name, int age) {
-			this.name = name;
-			this.age = age;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public int getAge() {
-			return age;
-		}
-
-		public void setAge(int age) {
-			this.age = age;
-		}
-	}
-
+	
 }

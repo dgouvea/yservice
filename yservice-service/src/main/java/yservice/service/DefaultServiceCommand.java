@@ -2,7 +2,7 @@ package yservice.service;
 
 import yservice.core.Method;
 
-public interface DefaultService extends Service {
+public interface DefaultServiceCommand extends ServiceCommand {
 
 	@Override
 	default Method getMethod() {

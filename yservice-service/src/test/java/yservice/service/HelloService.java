@@ -1,18 +1,16 @@
 package yservice.service;
 
-import spark.Request;
-import spark.Response;
+import yservice.core.ServiceDiscovery;
+import yservice.service.ServiceServer;
 
-public class HelloService implements DefaultService {
+public class HelloService {
 
-	@Override
-	public String getUri() {
-		return "/hello/:name";
+	public static void main(String[] args) {
+		ServiceProvider serviceProvider = new DefaultServiceProvider("Hello", "localhost", 4002);
+		serviceProvider.serviceDiscovery(ServiceDiscovery.connect("http://localhost:8080/yservice"));
+		serviceProvider.register(new HelloCommand());
+		
+		ServiceServer.init(serviceProvider);
 	}
-
-	@Override
-	public String execute(Request req, Response res) {
-		return "Hi " + req.params("name");
-	}
-
+	
 }

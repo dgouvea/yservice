@@ -1,24 +1,15 @@
 package yservice.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import yservice.core.ServiceDiscovery;
 
-import spark.Request;
-import spark.Response;
+public class HelloWorldService {
 
-public class HelloWorldService implements DefaultService {
-
-	private static Logger logger = LoggerFactory.getLogger(HelloWorldService.class);
+	public static void main(String[] args) {
+		ServiceProvider serviceProvider = new DefaultServiceProvider("HelloWorld", "localhost", 4004);
+		serviceProvider.serviceDiscovery(ServiceDiscovery.connect("http://localhost:8080/yservice"));
+		serviceProvider.register(new HelloWorldCommand());
+		
+		ServiceServer.init(serviceProvider);
+	}
 	
-	@Override
-	public String getUri() {
-		return "/hello";
-	}
-
-	@Override
-	public String execute(Request req, Response res) {
-		logger.warn("requesting service...");
-		return "Hello World";
-	}
-
 }
