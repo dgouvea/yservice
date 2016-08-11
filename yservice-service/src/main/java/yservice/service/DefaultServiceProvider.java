@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import yservice.core.ServiceRegistryDescriptor;
+
 public class DefaultServiceProvider implements ServiceProvider {
 
 	private final String name;
@@ -40,6 +42,15 @@ public class DefaultServiceProvider implements ServiceProvider {
 	public final ServiceProvider register(Service descriptor) {
 		services.add(descriptor);
 		return this;
+	}
+
+	@Override
+	public ServiceRegistryDescriptor getDescriptor() {
+		ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
+		descriptor.setDomain(getDomain());
+		descriptor.setName(getName());
+		descriptor.setVersion(getVersion());
+		return descriptor;
 	}
 	
 }

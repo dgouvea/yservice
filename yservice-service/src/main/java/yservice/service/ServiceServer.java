@@ -73,7 +73,7 @@ public class ServiceServer {
 			}
 			
 			if (!uri.startsWith("/")) {
-				uri = "/" + uri;
+				uri = "/".concat(uri);
 			}
 			
 			after((req, res) -> {
@@ -88,7 +88,7 @@ public class ServiceServer {
 			serviceRoute(service, uri);
 			serviceBasicRoute(serviceProvider, service, discovery);
 			
-			ServiceRegistryDescriptor descriptor = service.getDescriptor();
+			ServiceRegistryDescriptor descriptor = serviceProvider.getDescriptor();
 			descriptor.setDomain(serviceProvider.getDomain());
 			discovery.register(descriptor);
 		});
@@ -110,7 +110,7 @@ public class ServiceServer {
 		});
 
 		delete("/service/stop", (req, res) -> {
-			ServiceRegistryDescriptor descriptor = service.getDescriptor();
+			ServiceRegistryDescriptor descriptor = serviceProvider.getDescriptor();
 			descriptor.setDomain(serviceProvider.getDomain());
 			discovery.unregister(descriptor);
 

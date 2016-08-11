@@ -6,7 +6,7 @@ package yservice.discovery;
 
 import java.util.Set;
 
-import yservice.discovery.ServiceRegistry.ServiceRegistryURI;
+import yservice.discovery.ServiceRegistry.ServiceRegistryId;
 
 /**
  * A class can implement the {@code ServiceRegistryObserver} interface when it
@@ -28,6 +28,6 @@ public interface ServiceRegistryObserver {
 	 * @param uri
 	 * @param services
 	 */
-	void update(ServiceRegistryURI uri, Set<ServiceRegistry> services);
+	void update(ServiceRegistryId uri, Set<ServiceRegistry> services);
 	
 }

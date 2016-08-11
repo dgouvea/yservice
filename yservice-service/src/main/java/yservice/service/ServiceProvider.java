@@ -2,6 +2,8 @@ package yservice.service;
 
 import java.util.List;
 
+import yservice.core.ServiceRegistryDescriptor;
+
 public interface ServiceProvider {
 
 	String getName();
@@ -11,7 +13,9 @@ public interface ServiceProvider {
 	int getPort();
 	
 	default String getDomain() {
-		return "http://" + getHost() + ":" + getPort();
+		StringBuilder domain = new StringBuilder();
+		domain.append("http://").append(getHost()).append(":").append(Integer.toString(getPort()));
+		return domain.toString();
 	}
 	
 	default int getThreads() {
@@ -25,5 +29,7 @@ public interface ServiceProvider {
 	ServiceProvider register(Service service);
 	
 	List<Service> getServices();
+
+	ServiceRegistryDescriptor getDescriptor();
 	
 }

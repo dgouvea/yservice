@@ -26,11 +26,11 @@ public final class ServiceDiscovery {
 	
 	public int register(ServiceRegistryDescriptor service) {
 		Gson gson = new Gson();
-		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getMethod(), service.getUri()));
+		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getName(), service.getVersion()));
 		
 		HttpResponse<String> response;
 		try {
-			response = Unirest.put(host + API_DISCOVERY_SERVICES_REGISTER).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).body(json).asString();
+			response = Unirest.put(host.concat(API_DISCOVERY_SERVICES_REGISTER)).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).body(json).asString();
 		} catch (UnirestException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
@@ -39,21 +39,21 @@ public final class ServiceDiscovery {
 
 	public int unregister(ServiceRegistryDescriptor service) {
 		Gson gson = new Gson();
-		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getMethod().toString(), service.getUri()));
+		String json = gson.toJson(new ServiceRegistry(service.getDomain(), service.getName(), service.getVersion()));
 		
 		HttpResponse<String> response;
 		try {
-			response = Unirest.put(host + API_DISCOVERY_SERVICES_UNREGISTER).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).body(json).asString();
+			response = Unirest.put(host.concat(API_DISCOVERY_SERVICES_UNREGISTER)).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).body(json).asString();
 		} catch (UnirestException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 		return response.getStatus();
 	}
 	
-	public ServiceRegistryDescriptor service(String uri) {
+	public ServiceRegistryDescriptor service(String name, String version) {
 		HttpResponse<ServiceRegistryDescriptor> response;
 		try {
-			response = Unirest.get(host + API_DISCOVERY_SERVICES_SERVICE).queryString("uri", uri).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).asObject(ServiceRegistryDescriptor.class);
+			response = Unirest.get(host + API_DISCOVERY_SERVICES_SERVICE + version + "/" + name).header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON).asObject(ServiceRegistryDescriptor.class);
 		} catch (UnirestException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}

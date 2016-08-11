@@ -4,12 +4,6 @@
  */
 package yservice.discovery;
 
-import java.util.ArrayList;
-
-import org.glassfish.jersey.uri.UriTemplate;
-
-import yservice.core.Method;
-
 /**
  * This class represents a service registry, it is used to register and find a REST service.
  * <p>It's a immutable class, there is a static method {@link ServiceRegistry#builder()} to use a builder pattern to create it.</p>
@@ -20,36 +14,31 @@ import yservice.core.Method;
  * 
  * @author David Sobreira Gouvea
  * @see ServiceRegistryBuilder
- * @see ServiceRegistryURI
+ * @see ServiceRegistryId
  */
 public final class ServiceRegistry {
 	
+	private final ServiceRegistryId id;
 	private final String domain;
-	private final Method method;
-	private final ServiceRegistryURI uri;
 	
 	/**
 	 * Constructs a newly Service Registry.
 	 * <p>All parameters are mandatory.</p>
 	 * 
 	 * @param domain domain, e.g.: http://localhost:8080/definity-discovery
-	 * @param method HTTP method, e.g.: GET, POST...
-	 * @param uri service URI, e.g.: /api/service/register
+	 * @param name service name, e.g.: person
+	 * @param version service version, e.g.: 1.0.0
 	 * @throws IllegalArgumentException if one of those parameters is null or empty
 	 */
-	public ServiceRegistry(String domain, Method method, String uri) throws IllegalArgumentException {
+	public ServiceRegistry(String domain, String name, String version) throws IllegalArgumentException {
 		if (domain == null || domain.isEmpty()) {
 			throw new IllegalArgumentException("domain cannot be null or empty");
 		}
-		if (method == null) {
-			throw new IllegalArgumentException("method cannot be null");
-		}
-		if (uri == null || uri.isEmpty()) {
+		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("uri cannot be null or empty");
 		}
 		this.domain = domain;
-		this.method = method;
-		this.uri = new ServiceRegistryURI(uri);
+		this.id = new ServiceRegistryId(name, version);
 	}
 
 	/**
@@ -62,23 +51,13 @@ public final class ServiceRegistry {
 	}
 
 	/**
-	 * Returns the method part of this {@code ServiceRegistry}.
-	 * 
-	 * @return the method part of this {@code ServiceRegistry}
-	 * @see Method
-	 */
-	public final Method getMethod() {
-		return method;
-	}
-
-	/**
 	 * Returns the URI representative part of this {@code ServiceRegistry}.
 	 * 
 	 * @return the URI representative part of this {@code ServiceRegistry}
-	 * @see ServiceRegistryURI
+	 * @see ServiceRegistryId
 	 */
-	public final ServiceRegistryURI getUri() {
-		return uri;
+	public final ServiceRegistryId getId() {
+		return id;
 	}
 	
 	/**
@@ -86,10 +65,10 @@ public final class ServiceRegistry {
 	 * 
 	 * @param uri the URI used to call a service	
 	 * @return <code>true</code> if, and only if, this service registry URI matches the given service URI 
-	 * @see ServiceRegistryURI#matches(String)
+	 * @see ServiceRegistryId#matches(String)
 	 */
 	public boolean matches(String uri) {
-		return this.uri.matches(uri);
+		return this.id.matches(uri);
 	}
 
 	/**
@@ -103,15 +82,13 @@ public final class ServiceRegistry {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((domain == null) ? 0 : domain.hashCode());
-		result = prime * result + ((method == null) ? 0 : method.hashCode());
-		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
 	/**
      * Compares this {@code ServiceRegistry} for equality with another object.
-     * <p>Two {@code ServiceRegistry} objects are equal if they have the same domain, method
-     * and URI.<p>
+     * <p>Two {@code ServiceRegistry} objects are equal if they have the same domain and ID.<p>
      * 
      * @param   obj the {@code ServiceRegistry} to compare against.
      * @return  {@code true} if the objects are the same;
@@ -131,15 +108,10 @@ public final class ServiceRegistry {
 				return false;
 		} else if (!domain.equals(other.domain))
 			return false;
-		if (method == null) {
-			if (other.method != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!method.equals(other.method))
-			return false;
-		if (uri == null) {
-			if (other.uri != null)
-				return false;
-		} else if (!uri.equals(other.uri))
+		} else if (!id.equals(other.id))
 			return false;
 		return true;
 	}
@@ -151,7 +123,7 @@ public final class ServiceRegistry {
      */
 	@Override
 	public String toString() {
-		return "ServiceRegistry [domain=" + domain + ", method=" + method + ", uri=" + uri + "]";
+		return "ServiceRegistry [domain=" + domain + ", uri=" + id + "]";
 	}
 
 	/**
@@ -170,45 +142,67 @@ public final class ServiceRegistry {
 	 * 
 	 * @author David Sobreira Gouvea
 	 */
-	public static final class ServiceRegistryURI implements Comparable<ServiceRegistryURI> {
+	public static final class ServiceRegistryId implements Comparable<ServiceRegistryId> {
 		
+		private final String name;
+		private final String version;
 		private final String uri;
-		private final UriTemplate template;
 		
 		/**
 		 * Constructs a newly instance of {@code ServiceRegistryURI}.
 		 * 
-		 * @param uri the URI of service
+		 * @param name the URI of service
 		 */
-		public ServiceRegistryURI(String uri) {
-			if (uri == null || uri.isEmpty()) {
-				throw new IllegalArgumentException("uri cannot be null or empty");
+		public ServiceRegistryId(String name, String version) {
+			if (name == null || name.isEmpty()) {
+				throw new IllegalArgumentException("name cannot be null or empty");
+			}
+			if (version == null || version.isEmpty()) {
+				throw new IllegalArgumentException("version cannot be null or empty");
 			}
 			
-			this.uri = uri;
-			this.template = new UriTemplate(uri);
+			this.name = name;
+			this.version = version;
+			this.uri = "/" + version + "/" + name;
 		}
 		
 		/**
-		 * Returns the URI of service.
+		 * Returns the name of service.
 		 * 
-		 * @return the URI of service.
+		 * @return the name of service.
 		 */
-		public final String getUri() {
+		public final String getName() {
+			return name;
+		}
+		
+		/**
+		 * Returns the version of service.
+		 * 
+		 * @return the version of service
+		 */
+		public String getVersion() {
+			return version;
+		}
+
+		/**
+		 * Returns the service URI.
+		 * 
+		 * @return the service URI
+		 */
+		public String getUri() {
 			return uri;
 		}
 		
 		/**
-		 * Returns <code>true</code> if, and only if, this service registry URI matches the given service URI.
-		 * <p>It calls the {@link UriTemplate#match(CharSequence, java.util.List)} to check if matches.</p>
+		 * Returns <code>true</code> if URI starts with the same version/name from service.</p>
 		 * 
-		 * @param uri uri the URI used to call a service
+		 * @param uri URI the URI used to call a service
 		 * @return <code>true</code> if, and only if, this service registry URI matches the given service URI.
 		 * 
 		 * @see UriTemplate#match(CharSequence, java.util.List)
 		 */
 		public boolean matches(String uri) {
-			return template.match(uri, new ArrayList<>());
+			return uri.startsWith(getUri());
 		}
 
 		/**
@@ -221,7 +215,8 @@ public final class ServiceRegistry {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			result = prime * result + ((version == null) ? 0 : version.hashCode());
 			return result;
 		}
 
@@ -241,11 +236,16 @@ public final class ServiceRegistry {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			ServiceRegistryURI other = (ServiceRegistryURI) obj;
-			if (uri == null) {
-				if (other.uri != null)
+			ServiceRegistryId other = (ServiceRegistryId) obj;
+			if (name == null) {
+				if (other.name != null)
 					return false;
-			} else if (!uri.equals(other.uri))
+			} else if (!name.equals(other.name))
+				return false;
+			if (version == null) {
+				if (other.version != null)
+					return false;
+			} else if (!version.equals(other.version))
 				return false;
 			return true;
 		}
@@ -257,7 +257,7 @@ public final class ServiceRegistry {
 	     */
 		@Override
 		public String toString() {
-			return uri;
+			return name;
 		}
 
 		/*
@@ -265,8 +265,8 @@ public final class ServiceRegistry {
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
 		@Override
-		public int compareTo(ServiceRegistryURI o) {
-			return getUri().compareTo(o.getUri());
+		public int compareTo(ServiceRegistryId o) {
+			return getVersion().concat(getName()).compareTo(o.getVersion().concat(o.getName()));
 		}
 		
 	}
@@ -281,8 +281,8 @@ public final class ServiceRegistry {
 	public static final class ServiceRegistryBuilder {
 		
 		private String domain;
-		private Method method;
-		private String uri;
+		private String name;
+		private String version;
 	
 		private ServiceRegistryBuilder() {
 			
@@ -301,39 +301,28 @@ public final class ServiceRegistry {
 		}
 
 		/**
-		 * Sets the method of the service.
+		 * Sets the name of the service.
 		 * 
-		 * @param method the method of service.
+		 * @param name the name of the service
 		 * @return the same instance of {@code ServiceRegistryBuilder}
-		 * @see ServiceRegistry#getMethod()
-		 * @see Method#from(String)
+		 * @see ServiceRegistry#getId()
+		 * @see ServiceRegistryId
 		 */
-		public ServiceRegistryBuilder method(String method) {
-			return method(Method.from(method));
-		}
-		
-		/**
-		 * Sets the method of the service.
-		 * 
-		 * @param method the method of service.
-		 * @return the same instance of {@code ServiceRegistryBuilder}
-		 * @see ServiceRegistry#getMethod()
-		 */
-		public ServiceRegistryBuilder method(Method method) {
-			this.method = method;
+		public ServiceRegistryBuilder name(String name) {
+			this.name = name;
 			return this;
 		}
 
 		/**
-		 * Sets the URI of the service.
+		 * Sets the version of the service.
 		 * 
-		 * @param uri the URI of the service
+		 * @param version the version of the service
 		 * @return the same instance of {@code ServiceRegistryBuilder}
-		 * @see ServiceRegistry#getUri()
-		 * @see ServiceRegistryURI
+		 * @see ServiceRegistry#getId()
+		 * @see ServiceRegistryId
 		 */
-		public ServiceRegistryBuilder uri(String uri) {
-			this.uri = uri;
+		public ServiceRegistryBuilder version(String version) {
+			this.version = version;
 			return this;
 		}
 		
@@ -343,7 +332,7 @@ public final class ServiceRegistry {
 		 * @return the newly instance of {@code ServiceRegistry}
 		 */
 		public ServiceRegistry build() {
-			return new ServiceRegistry(domain, method, uri);
+			return new ServiceRegistry(domain, name, version);
 		}
 		
 	}

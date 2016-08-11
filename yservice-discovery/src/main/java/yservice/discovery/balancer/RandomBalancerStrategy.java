@@ -24,12 +24,13 @@ public class RandomBalancerStrategy implements BalancerStrategy {
 	 * Returns the next service to be invoked.
 	 * <p>Using random strategy, it choices a service in the list randomically.</p>
 	 * 
-	 * @param uri the URI of the REST service
+	 * @param name the name of the REST service
+	 * @param version the version of the REST service
 	 * @return the next service to be invoked.
 	 */
 	@Override
-	public ServiceRegistry next(String uri) {
-		Set<ServiceRegistry> set = ServiceManager.getInstance().match(uri);
+	public ServiceRegistry next(String name, String version) {
+		Set<ServiceRegistry> set = ServiceManager.getInstance().get(name, version);
 		
 		// return the first service when there is only one
 		if (set.size() == 1) {

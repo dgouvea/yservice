@@ -18,13 +18,13 @@ public class TestRoundBalancerStrategy {
 	public void prepare() {
 		ServiceManager serviceManager = ServiceManager.getInstance();
 		
-		ServiceRegistry service1 = ServiceRegistry.builder().domain("http://localhost:8081").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service1 = ServiceRegistry.builder().domain("http://localhost:8081").name("people").version("1.0").build();
 		serviceManager.register(service1);
 
-		ServiceRegistry service2 = ServiceRegistry.builder().domain("http://localhost:8082").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service2 = ServiceRegistry.builder().domain("http://localhost:8082").name("people").version("1.0").build();
 		serviceManager.register(service2);
 
-		ServiceRegistry service3 = ServiceRegistry.builder().domain("http://localhost:8083").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service3 = ServiceRegistry.builder().domain("http://localhost:8083").name("people").version("1.0").build();
 		serviceManager.register(service3);
 	}
 	
@@ -41,27 +41,27 @@ public class TestRoundBalancerStrategy {
 		
 		List<String> domains = new ArrayList<>();
 		
-		service = strategy.next("/people/david");
+		service = strategy.next("people", "1.0");
 		Assert.assertFalse(domains.contains(service.getDomain()));
 		System.out.println(service.getDomain());
 		domains.add(service.getDomain());
 
-		service = strategy.next("/people/sobreira");
+		service = strategy.next("people", "1.0");
 		Assert.assertFalse(domains.contains(service.getDomain()));
 		System.out.println(service.getDomain());
 		domains.add(service.getDomain());
 
-		service = strategy.next("/people/gouvea");
+		service = strategy.next("people", "1.0");
 		Assert.assertFalse(domains.contains(service.getDomain()));
 		System.out.println(service.getDomain());
 		domains.add(service.getDomain());
 
-		service = strategy.next("/people/john");
+		service = strategy.next("people", "1.0");
 		System.out.println(service.getDomain());
 		Assert.assertTrue(domains.contains(service.getDomain()));
 		domains.add(service.getDomain());
 
-		service = strategy.next("/people/doe");
+		service = strategy.next("people", "1.0");
 		System.out.println(service.getDomain());
 		Assert.assertTrue(domains.contains(service.getDomain()));
 	}

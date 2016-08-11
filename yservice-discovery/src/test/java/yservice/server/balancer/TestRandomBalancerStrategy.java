@@ -15,16 +15,16 @@ public class TestRandomBalancerStrategy {
 	public void prepare() {
 		ServiceManager serviceManager = ServiceManager.getInstance();
 		
-		ServiceRegistry service1 = ServiceRegistry.builder().domain("http://localhost:8081").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service1 = ServiceRegistry.builder().domain("http://localhost:8081").name("people").version("1.0").build();
 		serviceManager.register(service1);
 
-		ServiceRegistry service2 = ServiceRegistry.builder().domain("http://localhost:8082").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service2 = ServiceRegistry.builder().domain("http://localhost:8082").name("people").version("1.0").build();
 		serviceManager.register(service2);
 
-		ServiceRegistry service3 = ServiceRegistry.builder().domain("http://localhost:8083").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service3 = ServiceRegistry.builder().domain("http://localhost:8083").name("people").version("1.0").build();
 		serviceManager.register(service3);
 
-		ServiceRegistry service4 = ServiceRegistry.builder().domain("http://localhost:8084").method("GET").uri("/people/{name}").build();
+		ServiceRegistry service4 = ServiceRegistry.builder().domain("http://localhost:8084").name("people").version("1.0").build();
 		serviceManager.register(service4);
 	}
 
@@ -38,17 +38,17 @@ public class TestRandomBalancerStrategy {
 	public void testRound() {
 		RandomBalancerStrategy strategy = new RandomBalancerStrategy();
 		
-		ServiceRegistry service1 = strategy.next("/people/david");
-		ServiceRegistry service2 = strategy.next("/people/sobreira");
-		ServiceRegistry service3 = strategy.next("/people/gouvea");
-		ServiceRegistry service4 = strategy.next("/people/john1");
-		ServiceRegistry service5 = strategy.next("/people/doe1");
-		ServiceRegistry service6 = strategy.next("/people/john2");
-		ServiceRegistry service7 = strategy.next("/people/doe2");
-		ServiceRegistry service8 = strategy.next("/people/john3");
-		ServiceRegistry service9 = strategy.next("/people/doe3");
-		ServiceRegistry service10 = strategy.next("/people/john4");
-		ServiceRegistry service11 = strategy.next("/people/doe4");
+		ServiceRegistry service1 = strategy.next("people", "1.0");
+		ServiceRegistry service2 = strategy.next("people", "1.0");
+		ServiceRegistry service3 = strategy.next("people", "1.0");
+		ServiceRegistry service4 = strategy.next("people", "1.0");
+		ServiceRegistry service5 = strategy.next("people", "1.0");
+		ServiceRegistry service6 = strategy.next("people", "1.0");
+		ServiceRegistry service7 = strategy.next("people", "1.0");
+		ServiceRegistry service8 = strategy.next("people", "1.0");
+		ServiceRegistry service9 = strategy.next("people", "1.0");
+		ServiceRegistry service10 = strategy.next("people", "1.0");
+		ServiceRegistry service11 = strategy.next("people", "1.0");
 
 		Assert.assertFalse(service1 == service2 
 				&& service1 == service3 

@@ -17,9 +17,10 @@ public interface BalancerStrategy {
 	/**
 	 * Returns the next service to be invoked.
 	 * 
-	 * @param uri the URI of the REST service
+	 * @param name the name of the REST service
+	 * @param version the version of the REST service
 	 * @return the next service to be invoked.
 	 */
-	ServiceRegistry next(String uri);
+	ServiceRegistry next(String name, String version);
 	
 }

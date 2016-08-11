@@ -11,6 +11,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
@@ -22,7 +23,7 @@ import javax.ws.rs.core.Response;
 import yservice.core.ServiceRegistryDescriptor;
 import yservice.discovery.ServiceManager;
 import yservice.discovery.ServiceRegistry;
-import yservice.discovery.ServiceRegistry.ServiceRegistryURI;
+import yservice.discovery.ServiceRegistry.ServiceRegistryId;
 import yservice.discovery.balancer.BalanceStrategyManager;
 import yservice.discovery.balancer.BalancerStrategy;
 
@@ -39,24 +40,29 @@ public class DiscoveryService {
 	/**
 	 * Return all registered services.
 	 * 
-	 * @param uri the service URI (optional)
+	 * @param name the service URI (optional)
 	 * @return the response including the registered services.
 	 */
 	@GET
-	public Response registeredServices(@QueryParam("uri") String uri) {
+	public Response registeredServices(@QueryParam("name") String name, @QueryParam("version") String version) {
 		ServiceManager serviceManager = ServiceManager.getInstance();
 		Object response;
 		
-		if (uri == null || uri.isEmpty()) {
-			Set<ServiceRegistryURI> services = serviceManager.getServices().keySet();
-			response = new ServiceRegistryURIResponse(services.stream().map(serviceURI -> serviceURI.getUri()).collect(Collectors.toList()));
-		} else {
-			Set<ServiceRegistry> services = serviceManager.get(uri);
+		if (name != null && !name.isEmpty() && version != null && !version.isEmpty()) {
+			Set<ServiceRegistry> services = serviceManager.get(name, version);
 			response = new ServiceRegistryResponse(services.stream().map(service -> {
 				ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
 				descriptor.setDomain(service.getDomain());
-				descriptor.setMethod(service.getMethod().name());
-				descriptor.setUri(service.getUri().getUri());
+				descriptor.setName(service.getId().getName());
+				descriptor.setVersion(service.getId().getVersion());
+				return descriptor;
+			}).collect(Collectors.toList()));
+		} else {
+			Set<ServiceRegistryId> services = serviceManager.getServices().keySet();
+			response = new ServiceRegistryResponse(services.stream().map(serviceRegistryId -> {
+				ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
+				descriptor.setName(serviceRegistryId.getName());
+				descriptor.setVersion(serviceRegistryId.getVersion());
 				return descriptor;
 			}).collect(Collectors.toList()));
 		}
@@ -81,16 +87,16 @@ public class DiscoveryService {
 	}
 
 	/**
-	 * Returns the service status.
+	 * Returns the service health.
 	 * 
 	 * @param domain the domain of the service
-	 * @return the response including the service status
+	 * @return the response including the service health
 	 */
 	@GET
-	@Path("/status")
-	public Response serviceStatus(@QueryParam("domain") String domain) {
+	@Path("/health")
+	public Response serviceHealth(@QueryParam("domain") String domain) {
 		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target(domain).path("/");
+		WebTarget target = client.target(domain).path("/service/health");
 		Response response = target.request().buildGet().invoke();
 		
 		return Response.ok(response.getEntity(), MediaType.APPLICATION_JSON).build();
@@ -139,8 +145,8 @@ public class DiscoveryService {
 	public Response register(ServiceRegistryDescriptor descriptor) {
 		ServiceRegistry serviceRegistry = ServiceRegistry.builder()
 				.domain(descriptor.getDomain())
-				.method(descriptor.getMethod())
-				.uri(descriptor.getUri())
+				.name(descriptor.getName())
+				.version(descriptor.getVersion())
 				.build();
 		
 		ServiceManager.getInstance().register(serviceRegistry);
@@ -158,8 +164,8 @@ public class DiscoveryService {
 	public Response unregister(ServiceRegistryDescriptor descriptor) {
 		ServiceRegistry serviceRegistry = ServiceRegistry.builder()
 				.domain(descriptor.getDomain())
-				.method(descriptor.getMethod())
-				.uri(descriptor.getUri())
+				.name(descriptor.getName())
+				.version(descriptor.getVersion())
 				.build();
 		
 		ServiceManager.getInstance().unregister(serviceRegistry);
@@ -173,15 +179,15 @@ public class DiscoveryService {
 	 * @return the response including the service route
 	 */
 	@GET
-	@Path("/service")
-	public Response get(@QueryParam("uri") String uri) {
+	@Path("/{version}/{name}")
+	public Response get(@PathParam("version") String version, @PathParam("name") String name) {
 		BalancerStrategy balancerStrategy = BalanceStrategyManager.getInstance().getBalancerStrategy();
-		ServiceRegistry serviceRegistry = balancerStrategy.next(uri);
+		ServiceRegistry serviceRegistry = balancerStrategy.next(name, version);
 		
 		ServiceRegistryDescriptor descriptor = new ServiceRegistryDescriptor();
 		descriptor.setDomain(serviceRegistry.getDomain());
-		descriptor.setMethod(serviceRegistry.getMethod().name());
-		descriptor.setUri(serviceRegistry.getUri().getUri());
+		descriptor.setName(serviceRegistry.getId().getName());
+		descriptor.setVersion(serviceRegistry.getId().getVersion());
 		
 		return Response.ok(descriptor).build();
 	}

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>yservice</groupId>
 		<artifactId>yservice</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2</version>
 	</parent>
 	<artifactId>yservice-service</artifactId>
 	<packaging>jar</packaging>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>yservice</groupId>
 			<artifactId>yservice-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -15,8 +15,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ServiceRegistryDescriptor {
 
 	private String domain;
-	private String method;
-	private String uri;
+	private String name;
+	private String version;
 
 	/**
 	 * Returns the domain.
@@ -37,42 +37,42 @@ public class ServiceRegistryDescriptor {
 	}
 
 	/**
-	 * Returns the method.
-	 * 
-	 * @return the method
-	 */
-	public String getMethod() {
-		return method;
-	}
-
-	/**
-	 * Sets the method.
-	 * 
-	 * @param method the method to set
-	 */
-	public void setMethod(String method) {
-		this.method = method;
-	}
-
-	/**
 	 * Returns the URI.
 	 * 
 	 * @return the uri
 	 */
-	public String getUri() {
-		return uri;
+	public String getName() {
+		return name;
 	}
 
 	/**
-	 * Sets the URI.
+	 * Sets the name.
 	 * 
-	 * @param uri the uri to set
+	 * @param uri the name to set
 	 */
-	public void setUri(String uri) {
+	public void setName(String uri) {
 		if (uri.contains(":")) {
 			uri = uri.replaceAll("\\:(\\w+)", "{$1}");
 		}
-		this.uri = uri;
+		this.name = uri;
+	}
+
+	/**
+	 * Returns the version
+	 * 
+	 * @return the version
+	 */
+	public String getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version
+	 * 
+	 * @param version the version to set
+	 */
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 }

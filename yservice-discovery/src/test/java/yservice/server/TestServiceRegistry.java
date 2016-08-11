@@ -9,12 +9,13 @@ public class TestServiceRegistry {
 
 	@Test
 	public void testUriMatcher() {
-		ServiceRegistry registry = ServiceRegistry.builder().domain("http://localhost:8080").method("GET").uri("/people/{name}").build();
+		ServiceRegistry registry = ServiceRegistry.builder().domain("http://localhost:8080").name("people").version("1.0").build();
 		
-		Assert.assertTrue(registry.matches("/people/david-sobreira-gouvea"));
-		Assert.assertTrue(registry.matches("/people/david"));
-		Assert.assertFalse(registry.matches("/people/"));
-		Assert.assertFalse(registry.matches("/people"));
+		Assert.assertTrue(registry.matches("/1.0/people/david-sobreira-gouvea"));
+		Assert.assertTrue(registry.matches("/1.0/people/david"));
+		Assert.assertFalse(registry.matches("/2.0/people/"));
+		Assert.assertFalse(registry.matches("/1.0/person/"));
+		Assert.assertTrue(registry.matches("/1.0/people"));
 	}
 	
 }

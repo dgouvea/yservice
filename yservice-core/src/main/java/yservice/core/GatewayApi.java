@@ -37,12 +37,12 @@ public class GatewayApi {
 			HttpRequest request;
 			HttpMethod httpMethod = HttpMethod.valueOf(method.name());
 			
-			uri = "/route" + uri;
+			uri = "/route".concat(uri);
 			
 			if (body == null) {
-				request = new HttpRequest(httpMethod, host + uri);
+				request = new HttpRequest(httpMethod, host.concat(uri));
 			} else {
-				request = new HttpRequestWithBody(httpMethod, host + uri);
+				request = new HttpRequestWithBody(httpMethod, host.concat(uri));
 				((HttpRequestWithBody) request).body(body);
 			}
 			request.header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON);

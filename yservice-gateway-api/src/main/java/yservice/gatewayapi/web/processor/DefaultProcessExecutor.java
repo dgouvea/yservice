@@ -59,11 +59,15 @@ public class DefaultProcessExecutor extends AbstractProcessExecutor {
 	 */
 	@Override
 	protected ResponseWrapper execute(RequestWrapper req, ProcessExecutorChain chain) throws IOException {
-		ServiceRegistryDescriptor descriptor = discovery.service(req.getUri());
+		String uri = req.getUri();
+		String[] uriParts = uri.split("/");
+		String version = uriParts[0];
+		String name = uriParts[1];
+		ServiceRegistryDescriptor descriptor = discovery.service(name, version);
 		
 		// rest client
 		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target(descriptor.getDomain()).path(descriptor.getUri());
+		WebTarget target = client.target(descriptor.getDomain()).path(descriptor.getName());
 		
 		// query parameters (cannot use forEach because queryParam return a new instance of target)
 		for (Entry<String, String> entry : req.getParameters().entrySet()) {
