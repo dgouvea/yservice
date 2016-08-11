@@ -6,6 +6,14 @@
 	<servlet>
 		<servlet-name>routerServlet</servlet-name>
 		<servlet-class>yservice.gatewayapi.web.RouterServlet</servlet-class>
+		<init-param>
+			<param-name>serviceDiscovery</param-name>
+			<param-value>http://localhost:8080/yservice-discovery</param-value>
+		</init-param>
+		<init-param>
+			<param-name>processExecutor</param-name>
+			<param-value>yservice.gatewayapi.web.processor.DefaultProcessExecutor</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>routerServlet</servlet-name>

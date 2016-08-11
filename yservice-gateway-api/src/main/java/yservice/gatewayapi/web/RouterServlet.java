@@ -5,13 +5,16 @@
 package yservice.gatewayapi.web;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import yservice.core.ServiceDiscovery;
 import yservice.gatewayapi.web.processor.DefaultProcessExecutor;
-import yservice.gatewayapi.web.processor.LoggerProcessExecutor;
 import yservice.gatewayapi.web.processor.ProcessExecutor;
 
 /**
@@ -23,24 +26,44 @@ public class RouterServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4018933413518793704L;
 	
-	private final ProcessExecutor processExecutor;
+	private ProcessExecutor processExecutor;
 
-	/**
-	 * Constructs a new router Servlet.
-	 * Defining {@code LoggerProcessExecutor} process executor as default. 
-	 */
-	public RouterServlet() {
-		processExecutor = new LoggerProcessExecutor();
-		processExecutor.setNext(new DefaultProcessExecutor(null)); //TODO: fix it
-	}
-	
-	/**
-	 * Constructs a new router Servlet with a given process executor.
-	 * 
-	 * @param processExecutor process executor
-	 */
-	public RouterServlet(ProcessExecutor processExecutor) {
-		this.processExecutor = processExecutor;
+	@Override
+	@SuppressWarnings("unchecked")
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		String serviceDiscoveryHost = config.getInitParameter("serviceDiscovery");
+		if (serviceDiscoveryHost == null || serviceDiscoveryHost.isEmpty()) {
+			throw new ServletException("servlet init parameter serviceDiscovery must be defined");
+		}
+		
+		ServiceDiscovery serviceDiscovery = ServiceDiscovery.connect(serviceDiscoveryHost);
+
+		String processExecutorClassName = config.getInitParameter("processExecutor");
+		if (processExecutorClassName != null && !processExecutorClassName.isEmpty()) {
+			Class<? extends ProcessExecutor> processExecutorClass;
+			try {
+				processExecutorClass = (Class<? extends ProcessExecutor>) Class.forName(processExecutorClassName);
+				processExecutor = processExecutorClass.getConstructor(ServiceDiscovery.class).newInstance(serviceDiscovery);
+			} catch (ClassNotFoundException e) {
+				throw new ServletException("Process executor not found: " + processExecutorClassName, e);
+			} catch (InstantiationException e) {
+				throw new ServletException("Process executor cannot be instanciated: " + processExecutorClassName, e);
+			} catch (IllegalAccessException e) {
+				throw new ServletException("Process executor has illegal access modifier: " + processExecutorClassName, e);
+			} catch (IllegalArgumentException e) {
+				throw new ServletException("Process executor has illegal argument: " + processExecutorClassName, e);
+			} catch (InvocationTargetException e) {
+				throw new ServletException("Process executor has a problem to be instanciated: " + processExecutorClassName, e);
+			} catch (NoSuchMethodException e) {
+				throw new ServletException("Process executor has no constructor with ServiceDiscovery parameter: " + processExecutorClassName, e);
+			} catch (SecurityException e) {
+				throw new ServletException("Process executor has a security problem: " + processExecutorClassName, e);
+			}
+		} else {
+			processExecutor = new DefaultProcessExecutor(serviceDiscovery);
+		}
 	}
 	
 	/**
